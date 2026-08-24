@@ -1,7 +1,7 @@
 101,Bir Hospital,Tudikhel-Kathmandu,4
 102,Patan Hospital, Patan-Lalitpur,3
 103,Teaching Hospital,Maharajgunj-Kathmandu,2
-104,Grande Hospital,Tokha-Bhaktapur,0
+104,Grande Hospital,Tokha-Bhaktapur,2
 105,Norvic Hospital,Thapathali-Lalitpur,4
 106,Alka Hospital,Jawalakhel-Lalitpur,6
 107,Kist Hospital ,Imadol-Lalitpur,2
