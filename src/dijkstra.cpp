@@ -1,103 +1,54 @@
 #include "../include/dijkstra.h"
 #include <iostream>
 #include <limits>
-#include <vector>
 
 using namespace std;
 
-
-// ==========================================================
-// Find shortest distances using Dijkstra's Algorithm
-// ==========================================================
-
 vector<double> Dijkstra::findShortestDistances(
     const Graph& graph,
-    int source)
+    const string& source)
 {
-    int vertices = graph.getVertices();
+    unordered_map<string, double> dist;
+    unordered_map<string, string> parent;
 
-    const double INF =
-        numeric_limits<double>::infinity();
+    graph.dijkstra(source, dist, parent);
 
-    vector<double> distance(vertices, INF);
-    vector<bool> visited(vertices, false);
+    vector<string> locations = graph.nodeNames();
+    vector<double> distances;
 
-    distance[source] = 0;
-
-    // Dijkstra's Algorithm
-    for(int count = 0; count < vertices; count++)
+    for (const string& location : locations)
     {
-        int current = -1;
-        double minimumDistance = INF;
-
-        // Find unvisited vertex with minimum distance
-        for(int i = 0; i < vertices; i++)
-        {
-            if(!visited[i] &&
-               distance[i] < minimumDistance)
-            {
-                minimumDistance = distance[i];
-                current = i;
-            }
-        }
-
-        // No reachable vertex remains
-        if(current == -1)
-            break;
-
-        visited[current] = true;
-
-        // Update neighboring vertices
-        for(const Edge& edge :
-            graph.getNeighbors(current))
-        {
-            int neighbor = edge.destination;
-
-            double newDistance =
-                distance[current] + edge.distance;
-
-            if(newDistance < distance[neighbor])
-            {
-                distance[neighbor] = newDistance;
-            }
-        }
+        distances.push_back(dist[location]);
     }
 
-    return distance;
+    return distances;
 }
 
 
-// ==========================================================
-// Display shortest distances
-// ==========================================================
-
 void Dijkstra::displayShortestDistances(
     const Graph& graph,
-    int source)
+    const string& source)
 {
-    vector<double> distances =
-        findShortestDistances(graph, source);
+    unordered_map<string, double> dist;
+    unordered_map<string, string> parent;
+
+    graph.dijkstra(source, dist, parent);
 
     cout << "\n===== Shortest Distances from "
-         << graph.getLocationName(source)
+         << source
          << " =====\n";
 
-    for(int i = 0;
-        i < graph.getVertices();
-        i++)
+    for (const auto& location : graph.nodeNames())
     {
-        cout << graph.getLocationName(i)
-             << " : ";
+        cout << location << " : ";
 
-        if(distances[i] ==
-           numeric_limits<double>::infinity())
+        if (dist[location] >= Graph::INF)
         {
             cout << "Unreachable";
         }
         else
         {
-            cout << distances[i]
-                 << " km";
+            cout << dist[location] << " km";
         }
 
         cout << endl;
@@ -105,227 +56,125 @@ void Dijkstra::displayShortestDistances(
 }
 
 
-// ==========================================================
-// Display shortest routes from source
-// ==========================================================
-
 void Dijkstra::displayShortestRoutes(
     const Graph& graph,
-    int source)
+    const string& source)
 {
-    int vertices = graph.getVertices();
+    unordered_map<string, double> dist;
+    unordered_map<string, string> parent;
 
-    const double INF =
-        numeric_limits<double>::infinity();
-
-    vector<double> distance(vertices, INF);
-
-    vector<int> parent(vertices, -1);
-
-    vector<bool> visited(vertices, false);
-
-    distance[source] = 0;
-
-    // Dijkstra's Algorithm with parent tracking
-    for(int count = 0;
-        count < vertices;
-        count++)
-    {
-        int current = -1;
-
-        double minimumDistance = INF;
-
-        // Find nearest unvisited vertex
-        for(int i = 0;
-            i < vertices;
-            i++)
-        {
-            if(!visited[i] &&
-               distance[i] < minimumDistance)
-            {
-                minimumDistance = distance[i];
-                current = i;
-            }
-        }
-
-        if(current == -1)
-            break;
-
-        visited[current] = true;
-
-        // Update neighbors
-        for(const Edge& edge :
-            graph.getNeighbors(current))
-        {
-            int neighbor = edge.destination;
-
-            double newDistance =
-                distance[current] +
-                edge.distance;
-
-            /*
-             * Update if the new path is shorter.
-             *
-             * If distances are equal, keep the existing
-             * parent so that the first discovered route
-             * remains selected.
-             */
-            if(newDistance < distance[neighbor])
-            {
-                distance[neighbor] = newDistance;
-
-                parent[neighbor] = current;
-            }
-        }
-    }
-
+    graph.dijkstra(source, dist, parent);
 
     cout << "\n===== Shortest Routes from "
-         << graph.getLocationName(source)
+         << source
          << " =====\n";
 
-
-    // Display route to every location
-    for(int destination = 0;
-        destination < vertices;
-        destination++)
+    for (const string& destination : graph.nodeNames())
     {
-        // Do not display route from source to itself
-        if(destination == source)
+        if (destination == source)
             continue;
-
 
         cout << "\n"
-             << graph.getLocationName(destination)
+             << destination
              << " : ";
 
-
-        if(distance[destination] == INF)
+        if (dist[destination] >= Graph::INF)
         {
-            cout << "Unreachable"
-                 << endl;
-
+            cout << "Unreachable\n";
             continue;
         }
 
-
-        // Store route backwards
-        vector<int> route;
-
-        int current = destination;
-
-
-        while(current != -1)
-        {
-            route.push_back(current);
-
-            current = parent[current];
-        }
-
-
-        // Display route in correct order
-        for(int i = route.size() - 1;
-            i >= 0;
-            i--)
-        {
-            cout << graph.getLocationName(
-                route[i]
+        vector<string> route =
+            graph.reconstructPath(
+                source,
+                destination,
+                parent
             );
 
-            if(i != 0)
-            {
+        for (size_t i = 0; i < route.size(); i++)
+        {
+            cout << route[i];
+
+            if (i + 1 < route.size())
                 cout << " -> ";
-            }
         }
 
-
         cout << "\tDistance: "
-             << distance[destination]
-             << " km"
-             << endl;
+             << dist[destination]
+             << " km\n";
     }
 }
 
 
-// ==========================================================
-// Find nearest hospital with available ICU
-// ==========================================================
-
 void Dijkstra::findNearestAvailableHospital(
     const Graph& graph,
-    int source,
+    const string& source,
     const Hospital hospitals[],
     int hospitalCount)
 {
-    vector<double> distances =
-        findShortestDistances(graph, source);
+    vector<string> candidates;
 
-
-    int nearestHospital = -1;
-
-    double shortestDistance =
-        numeric_limits<double>::infinity();
-
-
-    // Check every hospital
-    for(int i = 0;
-        i < hospitalCount;
-        i++)
+    for (int i = 0; i < hospitalCount; i++)
     {
-        /*
-         * Ignore hospitals that have no
-         * ICU beds available.
-         */
-        if(hospitals[i].availableICUBeds > 0)
+        if (hospitals[i].availableICUBeds > 0)
         {
-            int hospitalLocation =
-                hospitals[i].location;
-
-
-            // Check if this hospital is nearer
-            if(distances[hospitalLocation] <
-               shortestDistance)
-            {
-                shortestDistance =
-                    distances[hospitalLocation];
-
-                nearestHospital = i;
-            }
+            candidates.push_back(
+                hospitals[i].location
+            );
         }
     }
 
+    vector<pair<string, double>> ranked =
+        graph.rankedByDistance(
+            source,
+            candidates
+        );
 
     cout << "\n===== Nearest Available ICU Hospital =====\n";
 
-
-    if(nearestHospital == -1)
+    if (ranked.empty())
     {
-        cout << "No hospital with available ICU beds found."
-             << endl;
+        cout << "No hospital with available ICU beds found.\n";
+        return;
     }
-    else
+
+    string nearestLocation = ranked[0].first;
+    double shortestDistance = ranked[0].second;
+
+    int nearestHospital = -1;
+
+    for (int i = 0; i < hospitalCount; i++)
     {
-        cout << "Hospital: "
-             << hospitals[nearestHospital].name
-             << endl;
-
-
-        cout << "Location: "
-             << graph.getLocationName(
-                    hospitals[nearestHospital].location)
-             << endl;
-
-
-        cout << "Distance from "
-             << graph.getLocationName(source)
-             << ": "
-             << shortestDistance
-             << " km"
-             << endl;
-
-
-        cout << "Available ICU Beds: "
-             << hospitals[nearestHospital].availableICUBeds
-             << endl;
+        if (hospitals[i].location == nearestLocation &&
+            hospitals[i].availableICUBeds > 0)
+        {
+            nearestHospital = i;
+            break;
+        }
     }
+
+    if (nearestHospital == -1)
+    {
+        cout << "No hospital with available ICU beds found.\n";
+        return;
+    }
+
+    cout << "Hospital: "
+         << hospitals[nearestHospital].name
+         << endl;
+
+    cout << "Location: "
+         << hospitals[nearestHospital].location
+         << endl;
+
+    cout << "Distance from "
+         << source
+         << ": "
+         << shortestDistance
+         << " km"
+         << endl;
+
+    cout << "Available ICU Beds: "
+         << hospitals[nearestHospital].availableICUBeds
+         << endl;
 }

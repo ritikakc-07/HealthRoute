@@ -4,37 +4,31 @@
 #include "graph.h"
 #include "hospital.h"
 #include <vector>
-
-using namespace std;
+#include <string>
 
 class Dijkstra
 {
 public:
-
-    // Calculate shortest distances from source
-    static vector<double> findShortestDistances(
+    static std::vector<double> findShortestDistances(
         const Graph& graph,
-        int source
+        const std::string& source
     );
 
-    // Display shortest distances
     static void displayShortestDistances(
         const Graph& graph,
-        int source
+        const std::string& source
     );
 
-    // Find nearest hospital having available ICU beds
     static void findNearestAvailableHospital(
         const Graph& graph,
-        int source,
+        const std::string& source,
         const Hospital hospitals[],
         int hospitalCount
     );
 
-    // Display shortest route from source to every location
     static void displayShortestRoutes(
         const Graph& graph,
-        int source
+        const std::string& source
     );
 };
 

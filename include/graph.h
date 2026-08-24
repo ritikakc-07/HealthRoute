@@ -1,35 +1,38 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <vector>
 #include <string>
+#include <vector>
+#include <unordered_map>
 
-using namespace std;
-
-struct Edge
-{
-    int destination;
-    double distance;
-};
-
-class Graph
-{
-private:
-    int vertices;
-    vector<vector<Edge>> adjacencyList;
-    vector<string> locationNames;
-
+// Weighted road-network graph (adjacency list) + Dijkstra's Algorithm.
+class Graph {
 public:
-    Graph(int v);
+    static constexpr double INF = 1e18;
 
-    void setLocationName(int id, string name);
-    void addRoad(int source, int destination, double distance);
+    void addNode(const std::string& name);
+    void addRoad(const std::string& a, const std::string& b, double distance, bool bidirectional = true);
+    bool hasNode(const std::string& name) const;
+    std::vector<std::string> nodeNames() const;
 
-    void displayGraph();
+    // Single-source shortest path (min-heap based).
+    // Fills dist[] with shortest distance to every node, and parent[] so the
+    // exact route can be reconstructed. Time: O((V + E) log V)
+    void dijkstra(const std::string& source,
+                  std::unordered_map<std::string, double>& dist,
+                  std::unordered_map<std::string, std::string>& parent) const;
 
-    int getVertices() const;
-    const vector<Edge>& getNeighbors(int vertex) const;
-    string getLocationName(int id) const;
+    // Walks the parent map backwards from destination to source.
+    std::vector<std::string> reconstructPath(
+        const std::string& source, const std::string& destination,
+        const std::unordered_map<std::string, std::string>& parent) const;
+
+    // Ranked (nearest-first) list of reachable candidate nodes from source.
+    std::vector<std::pair<std::string, double>> rankedByDistance(
+        const std::string& source, const std::vector<std::string>& candidates) const;
+
+private:
+    std::unordered_map<std::string, std::vector<std::pair<std::string, double>>> adj;
 };
 
 #endif

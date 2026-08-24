@@ -3,12 +3,13 @@
 
 #include <string>
 
-using namespace std;
-
-struct Hospital
-{
-    string name;
-    int location;
+// Core hospital record used by the Admin (BST) module, the routing
+// (Graph/Dijkstra) module, and file handling.
+struct Hospital {
+    int id;
+    std::string name;
+    std::string location;      // must match a node name in the Graph
+    int totalICUBeds;
     int availableICUBeds;
 };
 
