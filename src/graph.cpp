@@ -46,3 +46,18 @@ void Graph::displayGraph()
         cout << endl;
     }
 }
+
+int Graph::getVertices() const
+{
+    return vertices;
+}
+
+const vector<Edge>& Graph::getNeighbors(int vertex) const
+{
+    return adjacencyList[vertex];
+}
+
+string Graph::getLocationName(int id) const
+{
+    return locationNames[id];
+}

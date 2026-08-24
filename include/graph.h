@@ -26,6 +26,10 @@ public:
     void addRoad(int source, int destination, double distance);
 
     void displayGraph();
+
+    int getVertices() const;
+    const vector<Edge>& getNeighbors(int vertex) const;
+    string getLocationName(int id) const;
 };
 
 #endif
